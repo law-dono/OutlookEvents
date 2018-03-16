@@ -1,0 +1,11 @@
+name: Outlook Events
+type: module
+description: 'Fetch Outlook Calendar Events.'
+package: Core
+dependencies:
+- node
+- block
+core: 8.x
+configure: outlook_events.settings
+
+

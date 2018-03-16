@@ -1,0 +1,31 @@
+<?php
+function outlook_events_schema() {
+  $schema['outlook_events'] = array(
+    'fields' => array(
+      'id'=>array(
+        'type'=>'serial',
+        'not null' => TRUE,
+      ),
+      'mail'=>array(
+        'type' => 'varchar',
+        'description' => 'Outlook Account unique id of the user',
+        'length' => 40,
+        'not null' => TRUE,
+      ),
+      'password'=>array(
+        'type' => 'varchar',
+        'description' => 'Password of the user outlook account',
+        'length' => 40,
+        'not null' => TRUE,
+      ),
+      'uid'=>array(
+        'type' => 'int',
+        'description' => 'unique id of the user',
+        'length' => 8,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}

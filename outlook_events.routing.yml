@@ -1,0 +1,35 @@
+outlook_events.settings:
+  path: '/admin/structure/outlook-config'
+  defaults:
+    _form: '\Drupal\outlook_events\Form\OutlookEventForm'
+    _title: 'outlook configuration'
+  requirements:
+    _permission: 'administer site configuration'
+outlook_events.account:
+  path: '/outlook-account'
+  defaults:
+    _form: '\Drupal\outlook_events\Form\OutlookListForm'
+    _title: 'My first page in D8'
+  requirements:
+    _permission: 'access content'
+outlook_events.form:
+ path: '/outlook-events'
+ defaults:
+   _title: 'Application form'
+   _form: '\Drupal\outlook_events\Form\UserDetailForm'
+ requirements:
+   _permission: 'access content'
+outlook_events.create:
+ path: '/outlook-account/add'
+ defaults:
+   _title: 'Account form'
+   _form: '\Drupal\outlook_events\Form\OutlookAccountForm'
+ requirements:
+   _permission: 'access content'
+outlook_events.delete:
+  path: '/outlook_events/form/delete/{cid}'
+  defaults:
+    _form: '\Drupal\outlook_events\Form\OutlookAccountDeleteForm'
+    _title: 'DeleteForm'
+  requirements:
+    _access: 'TRUE'

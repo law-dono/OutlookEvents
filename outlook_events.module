@@ -1,0 +1,141 @@
+<?php
+
+module_load_include('inc', 'outlook_events', 'outlook_events.auth');
+
+        $user = \Drupal::config('outlook_events.settings')->get('username');
+
+        $pass = \Drupal::config('outlook_events.settings')->get('password');
+$account = array('user' =>$user,'pass' => $pass);
+
+function result() {
+
+      $query = \Drupal::database()->select('users_field_data', 'u');
+$query->fields('u', ['uid','name','mail']);
+$results = $query->execute()->fetchAll();
+
+$output = array();
+// Next, loop through the $results array
+foreach ($results as $result) {
+     if ($result->uid != 0 && $result->uid != 1) {
+       $output[$result->uid] = [
+         'userid' => $result->uid,     // 'userid' was the key used in the header
+         'Username' => $result->name, // 'Username' was the key used in the header
+         'email' => $result->mail,    // 'email' was the key used in the header
+       ];
+     }
+   }
+   return $output;
+
+}
+
+
+
+/**
+ * Returns the date range().
+ */
+function outlook_events_week_range($date) {
+  $ts = strtotime($date);
+  $start = (date('w', $ts) == 0) ? $ts : strtotime('now', $ts);
+  return array(
+    date('c', $start),
+    date('c', strtotime('next month', $start)),
+  );
+}
+
+function _get_weekdays($date) {
+  list($day, $month, $year) = explode("-", $date);
+
+  // Get the weekday of the given date
+  $wkday = date('l',mktime('0','0','0', $month, $day, $year));
+
+  switch($wkday) {
+    case 'Saturday': $numDaysToSat = 0; break;
+    case 'Sunday': $numDaysToSat = 1; break;
+    case 'Monday': $numDaysToSat = 2; break;
+    case 'Tuesday': $numDaysToSat = 3; break;
+    case 'Wednesday': $numDaysToSat = 4; break;
+    case 'Thursday': $numDaysToSat = 5; break;
+    case 'Friday': $numDaysToSat = 6; break;
+  }
+
+    // Timestamp of the saturday for that week
+  $monday = mktime('0','0','0', $month, $day-$numDaysToSat, $year);
+
+  $seconds_in_a_day = 86400;
+
+  // Get date for 7 days from Monday (inclusive)
+  for($i=2; $i<7; $i++)
+  {
+    $dates[$i] = date('Y-m-d',$monday+($seconds_in_a_day*$i));
+  }
+  return $dates;
+}
+
+function get_outlook_events($range = '+7day') {
+
+  $page = pager_default_initialize(30, 7);
+  $page_offset = $page * 7;
+  $event_rows = array();
+  $week_days = _get_weekdays(date('d-m-Y', strtotime(" +$page_offset day")));
+    list($start_date, $end_date) = outlook_events_week_range(date('Y-m-d H:i:s'));
+  $dates = outlook_events_date_range($start_date, $end_date);
+
+//  list($start_date, $end_date) = outlook_events_week_range(date('Y-m-d H:i:s', strtotime(current($week_days))), $range);
+  $events = outlook_events_list();
+  //echo'<pre>';print_r($events);echo'</pre>';die();
+  // foreach ($events as $key => $event) {
+  //   if ((date('N', strtotime($event->Start)) < 6)) {
+  //     $date = date('d', strtotime($event->Start));
+  //     $calendar_item_start_time = strtotime($event->Start);
+  //     $calendar_item_end_time = strtotime($event->End);
+  //     do{
+  //       $time = date('G:i', $calendar_item_start_time);
+  //       $event_rows[$time][$date]['data'] = $event->Subject;
+  //       $event_rows[$time][$date]['start_date'] = date('Y-m-d H:i:s', strtotime($event->Start));
+  //       $event_rows[$time][$date]['end_date'] = date('Y-m-d H:i:s', strtotime($event->End));
+  //       $calendar_item_start_time+=1800;
+  //     }while ($calendar_item_start_time < $calendar_item_end_time);
+  //   }
+  // }
+// return $event_rows;
+  $i = 0;
+      $scheduler = array();
+    //     echo'<pre>';print_r($events);echo'</pre>';die();
+      foreach ($events as $event) {
+        //echo'<pre>';print_r($event);echo'</pre>';die();
+        $start = $event->Start;
+        $end = $event->End;
+        $subject = $event->Subject;
+        $location = $event->Location;
+        $organizer = $event->Organizer->Mailbox->Name;
+        if (in_array(date('Y-m-d', strtotime($start)), $dates)) {
+          date_default_timezone_set('Asia/Kolkata');
+          $scheduler[$i]['start_ist'] = date('Y-m-d H:i:s', strtotime($start));
+          $scheduler[$i]['end_ist'] = date('Y-m-d H:i:s', strtotime($end));
+          $scheduler[$i]['title'] = $subject;
+          $scheduler[$i]['location'] = $location;
+          $scheduler[$i]['organizer'] = $organizer;
+          $i++;
+        }
+      }
+
+  return $scheduler;
+}
+
+function get_outlook_account_list() {
+$query = \Drupal::database()->select('outlook_events', 'oe');
+$query->fields('oe', ['uid','mail']);
+$results = $query->execute()->fetchAll();
+$output = array();
+// Next, loop through the $results array
+foreach ($results as $result) {
+     if ($result->uid != 0) {
+       $output[$result->uid] = [
+         'uid' => $result->uid,     // 'userid' was the key used in the header
+         'outlook_id' => $result->mail, // 'Username' was the key used in the header
+         'operations' => $result->mail,    // 'email' was the key used in the header
+       ];
+     }
+   }
+   return $output;
+}
