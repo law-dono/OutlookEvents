@@ -1,5 +1,6 @@
 <?php
-
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 module_load_include('inc', 'outlook_events', 'outlook_events.auth');
 
         $user = \Drupal::config('outlook_events.settings')->get('username');
@@ -127,13 +128,16 @@ $query = \Drupal::database()->select('outlook_events', 'oe');
 $query->fields('oe', ['uid','mail']);
 $results = $query->execute()->fetchAll();
 $output = array();
+
+$url = Url::fromRoute('outlook_events.create');
+$edit = \Drupal::l(t('Delete'), $url);
 // Next, loop through the $results array
 foreach ($results as $result) {
      if ($result->uid != 0) {
        $output[$result->uid] = [
          'uid' => $result->uid,     // 'userid' was the key used in the header
          'outlook_id' => $result->mail, // 'Username' was the key used in the header
-         'operations' => $result->mail,    // 'email' was the key used in the header
+         'operations' => $edit,    // 'email' was the key used in the header
        ];
      }
    }
