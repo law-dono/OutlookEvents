@@ -4,65 +4,53 @@ namespace Drupal\outlook_events\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\Core\Database\Database;
 
 /**
- * Provides route responses for the Example module.
+ * Class OutlookAccountController.
+ *
+ * @package Drupal\outlook_events\Controller
  */
-class OutlookEventController extends ControllerBase {
+class OutlookAccountController extends ControllerBase {
 
-  /**
-   * Returns a simple page.
-   *
-   * @return array
-   *   A simple renderable array.
-   */
-
-
-  public function myPage() {
-$url = Url::fromRoute('outlook_events.create');
-$internal_link = \Drupal::l(t('+Add Outlook Account'), $url);
-    $element = array(
-      '#markup' => $internal_link,
-    );
-    return $element;
+      public function getContent() {
+    $build = [
+      'description' => [
+        '#theme' => 'outlook_events_description',
+        '#description' => 'outlook_events',
+        '#attributes' => [],
+      ],
+    ];
+    return $build;
   }
-//  /**
-//    * {@inheritdoc}
-//    */
-//   public function getFormId() {
-//     return 'outlook_account_detail_form';
-//   }
+  /**
+   * Display.
+   *
+   * @return string
+   *   Return Hello string.
+   */
+  public function accountDisplay() {
+    //create table header
+    $header = array(
+     'id'=>    t('Id'),
+      'mail' => t('Mail'),
+        'opt' => t('operations'),
+        'opt1' => t('operations'),
+    );
 
-
-//   public function buildForm(array $form, FormStateInterface $form_state) {
-
-// $header = [
-//      'uid' => t('Uid'),
-//      'outlook_id' => t('Outlook Id'),
-//      'operations' => t('Operations'),
-//    ];
-
-//     $form['table'] = [
-// '#type' => 'tableselect',
-// '#header' => $header,
-// //'#rows' => get_outlook_events(),
-// '#options' => get_outlook_account_list(),
-// '#empty' => t('No users found'),
-// ];
-
-//  return $form;
-
-//  }
-
-//   /**
-//    * {@inheritdoc}
-//    */
-//   public function submitForm(array &$form, FormStateInterface $form_state) {
-//    // drupal_set_message($this->t('@can_name ,Your application is being submitted!', array('@can_name' => $form_state->getValue('candidate_name'))));
-//     foreach ($form_state->getValues() as $key => $value) {
-//       drupal_set_message($key . ': ' . $value);
-//     }
-//    }
-
-
+   $form['account'] = [
+  '#title' => $this
+    ->t('+Add Account'),
+  '#type' => 'link',
+  '#url' => Url::fromRoute('outlook_events.create'),
+];
+ //display data in site
+    $form['table'] = [
+            '#type' => 'table',
+            '#header' => $header,
+            '#rows' => get_outlook_calendar(),
+            '#empty' => t('No users found'),
+        ];
+        return $form;
+}
 }
