@@ -1,7 +1,4 @@
 <?php
-// use Client;
-//include 'Client.php';
-
 use jamesiarmes\PhpEws\Client;
 use jamesiarmes\PhpEws\Type;
 use jamesiarmes\PhpEws\Request\FindItemType;
@@ -13,21 +10,13 @@ use jamesiarmes\PhpEws\ArrayType\NonEmptyArrayOfBaseFolderIdsType;
 use jamesiarmes\PhpEws\Type\DistinguishedFolderIdType;
 use jamesiarmes\PhpEws\Enumeration\DistinguishedFolderIdNameType;
 use jamesiarmes\PhpEws\Enumeration\ExceptionPropertyURIType;
-//use jamesiarmes\PhpNtlm\SoapClient;
-//use jamesiarmes\PhpEws\Enumeration\ResponseCodeType;
-
 
 /**
  * Returns outlook events on success.
  */
-function outlook_events_list($creation = FALSE) {
-          $user = \Drupal::config('outlook_events.settings')->get('username');
+function outlook_events_list($account,$creation = FALSE) {
 
-        $pass = \Drupal::config('outlook_events.settings')->get('password');
-
-$account = array('user' =>$user,'pass' => $pass);
-
-  $ews = new Client("outlook.office365.com", $account['user'], $account['pass']);
+  $ews = new Client("outlook.office365.com", $account->mail, $account->password);
 
   // Set init class.
   $request = new FindItemType();
@@ -55,38 +44,14 @@ $account = array('user' =>$user,'pass' => $pass);
 
   try {
     $response = $ews->FindItem($request);
-
-
-
     if ($creation == TRUE) {
 
       return TRUE;
     }
     // Loop through each item if event(s) were found in the timeframe specified.
     if ($response->ResponseMessages->FindItemResponseMessage[0]->RootFolder->TotalItemsInView > 0) {
-//echo'<pre>';print_r("baba");echo'</pre>';die();
-      $events = $response->ResponseMessages->FindItemResponseMessage[0]->RootFolder->Items->CalendarItem;
-//echo'<pre>';print_r($events);echo'</pre>';die();
-      // $i = 0;
-      // $scheduler = array();
-      // foreach ($events as $event) {
-      //   $start = $event->Start;
-      //   $end = $event->End;
-      //   $subject = $event->Subject;
-      //   $location = $event->Location;
-      //   $organizer = $event->Organizer->Mailbox->Name;
-      //   if (in_array(date('Y-m-d', strtotime($start)), $dates)) {
-      //     date_default_timezone_set('Asia/Kolkata');
-      //     $scheduler[$i]['start_ist'] = date('Y-m-d H:i:s', strtotime($start));
-      //     $scheduler[$i]['end_ist'] = date('Y-m-d H:i:s', strtotime($end));
-      //     $scheduler[$i]['title'] = $subject;
-      //     $scheduler[$i]['location'] = $location;
-      //     $scheduler[$i]['organizer'] = $organizer;
-      //     $i++;
-      //   }
 
-      // }
-      // return $scheduler;
+      $events = $response->ResponseMessages->FindItemResponseMessage[0]->RootFolder->Items->CalendarItem;
 
       return $events;
     }
